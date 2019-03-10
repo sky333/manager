@@ -1,7 +1,7 @@
-<template>
+<template >
   <div id="login">
     <!-- 要给标签绑定数据 :formData   绑定验证规则 :rulss   -->
-    <el-form
+    <el-form 
       :model="formData"
       status-icon
       ref="formData"
@@ -15,13 +15,13 @@
         <el-input v-model.trim="formData.username"></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input type="password" v-model.trim="formData.password" autocomplete="off"></el-input>
+        <el-input type="password" v-model.trim="formData.password" autocomplete="off" @keyup.enter.native="submitForm('formData')"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button class="btn" type="primary" @click="submitForm('formData')">提交</el-button>
       </el-form-item>
     </el-form>
-  </div>
+ </div>
 </template>
 <script>
 export default {
@@ -60,10 +60,22 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("submit!");
+        //alert("submit!");
+        this.$http.post("login",this.formData).then(res=>{
+            if(res.data.meta.status === 400){
+                console.log(res);
+                this.$message.error(res.data.meta.msg);
+            }else{
+                //登录成功
+                console.log(res);
+                this.$message.success(res.data.meta.msg);;
+                window.sessionStorage.setItem('token',res.data.data.token)
+                this.$router.push('/')
+            }
+        })
         } else {
-          console.log("error submit!!");
-          this.$message.error('请输入正确的用户名和账号');
+          //console.log("error submit!!");
+          this.$message.error('请输入正确的用户名和密码');
           return false;
         }
       });
@@ -80,10 +92,14 @@ body {
   margin: 0;
   padding: 0;
 }
-body > div:first-of-type {
+body >div:first-of-type{
   width: 100%;
   height: 100%;
   background-color: #324152;
+}
+body >div:first-of-type {
+  width: 100%;
+  height: 100%;
   /* 设置模块居中 */
   display: flex;
   /* 主轴居中 */
