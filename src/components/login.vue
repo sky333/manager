@@ -92,14 +92,14 @@ body {
   margin: 0;
   padding: 0;
 }
-body >div:first-of-type{
+body>div:first-of-type{
+  width: 100%;
+  height: 100%;
+}
+ #login {
   width: 100%;
   height: 100%;
   background-color: #324152;
-}
-body >div:first-of-type {
-  width: 100%;
-  height: 100%;
   /* 设置模块居中 */
   display: flex;
   /* 主轴居中 */

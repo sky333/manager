@@ -17,24 +17,24 @@
         </el-col>
       </el-row>
     </el-header>
-    <el-container class="index_main">
+    <el-container >
       <el-aside width="200px" class="index_aside">Aside</el-aside>
-      <el-main class="main_right">Main</el-main>
+      <el-main class="index_main">Main</el-main>
     </el-container>
   </el-container>
 </template>
 <script>
 export default {
   //判断用户是否登录
-  beforeCreate() {
-    if (window.sessionStorage.getItem("token")) {
-      //当session中token存在的时候,不用管,让网页继续加载
-    } else {
-      //当没有的token的时候,提醒用户未登录,并把用户踢到登录页
-      this.$message.warning("请先登录");
-      this.$router.push("/login");
-    }
-  },
+  // beforeCreate() {
+  //   if (window.sessionStorage.getItem("token")) {
+  //     //当session中token存在的时候,不用管,让网页继续加载
+  //   } else {
+  //     //当没有的token的时候,提醒用户未登录,并把用户踢到登录页
+  //     this.$message.warning("请先登录");
+  //     this.$router.push("/login");
+  //   }
+  // },
   methods: {
     logout() {
       this.$confirm("是否退出?, 是否继续?", "提示", {
@@ -77,9 +77,6 @@ export default {
 .index_main {
   display: flex;
   height: 100%;
-}
-.main_right {
-  flex: 1;
   height: 100%;
   background-color: #e9eef3;
 }
