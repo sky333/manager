@@ -17,9 +17,25 @@
         </el-col>
       </el-row>
     </el-header>
-    <el-container >
-      <el-aside width="200px" class="index_aside">Aside</el-aside>
-      <el-main class="index_main">Main</el-main>
+    <el-container>
+      <el-aside width="200px" class="index_aside">
+        <el-menu
+          default-active="2"
+          class="el-menu-vertical-demo"
+          router
+        >
+          <el-submenu index="1">
+            <template slot="title">
+              <i class="el-icon-location"></i>
+              <span>用户管理</span>
+            </template>
+            <el-menu-item index="users"><span class="el-icon-menu"></span> 用户列表</el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
+      <el-main class="index_main">
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -41,14 +57,12 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      })
-        .then(() => {
-          //清除token值
-          window.sessionStorage.removeItem("token");
-          //返回登录页
-          this.$router.push("/login");
-        })
-        
+      }).then(() => {
+        //清除token值
+        window.sessionStorage.removeItem("token");
+        //返回登录页
+        this.$router.push("/login");
+      });
     }
   }
 };
@@ -74,10 +88,11 @@ export default {
   line-height: 60px;
   text-align: right;
 }
-.index_main {
-  display: flex;
+.el-main.index_main {
+
   height: 100%;
   height: 100%;
   background-color: #e9eef3;
+  padding-top: 0;
 }
 </style>

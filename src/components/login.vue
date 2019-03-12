@@ -64,11 +64,11 @@ export default {
         this.$http.post("login",this.formData).then(res=>{
             if(res.data.meta.status === 400){
                 console.log(res);
-                this.$message.error(res.data.meta.msg);
+                // this.$message.error(res.data.meta.msg);
             }else{
                 //登录成功
                 console.log(res);
-                this.$message.success(res.data.meta.msg);;
+                // this.$message.success(res.data.meta.msg);
                 window.sessionStorage.setItem('token',res.data.data.token)
                 this.$router.push('/')
             }
