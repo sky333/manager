@@ -2,11 +2,7 @@
 <template>
   <div>
     <!-- 面包屑 -->
-    <el-breadcrumb separator-class="el-icon-arrow-right" class="my_breadcrumb">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-    </el-breadcrumb>
+    <mianbaoxie second="用户管理" third="用户列表"></mianbaoxie>
     <!-- 栅格+搜索栏 -->
     <el-row class="my_search">
       <el-col :span="6">
@@ -39,13 +35,18 @@
       <el-table-column prop="mobile" label="电话"></el-table-column>
       <el-table-column label="用户状态">
         <template slot-scope="scope">
-          <el-switch @change="statusChange(scope.row)" active-color="#13ce66" inactive-color="#ff4949" v-model="scope.row.mg_state"></el-switch>
+          <el-switch
+            @change="statusChange(scope.row)"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            v-model="scope.row.mg_state"
+          ></el-switch>
         </template>
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="current">
           <el-button
-            @click="handleEdit(current.$index, current.row)"
+            @click="handleEdit(current.row)"
             type="primary"
             icon="el-icon-edit"
             size="mini"
@@ -58,16 +59,24 @@
             size="mini"
             plain
           ></el-button>
-          <el-button type="success" icon="el-icon-check" size="mini" plain></el-button>
+          <el-button
+            type="success"
+            icon="el-icon-check"
+            size="mini"
+            plain
+            @click="chooseRule(current.row)"
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
     <!-- 分页 -->
     <el-pagination
-      :page-sizes="[100, 200, 300, 400]"
-      :page-size="100"
+      :page-sizes="[2, 5, 6, 8]"
+      :page-size="sendData.pagesize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="400"
+      :total="total"
+      @size-change="sizeChange"
+      @current-change="currentChange"
     ></el-pagination>
     <!-- 添加的弹框 -->
     <el-dialog title="添加用户" :visible.sync="addFormVisiable" status-icon>
@@ -97,6 +106,60 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="addFormVisiable = false">取 消</el-button>
         <el-button type="primary" @click="submitForm('addForm')">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 编辑按钮的弹框 -->
+    <el-dialog title="编辑用户" :visible.sync="editFormVisiable" status-icon>
+      <el-form
+        :model="editForm"
+        label-width="80px"
+        class="my-form"
+        :rules="rules"
+        status-icon
+        ref="editForm"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="editForm.username" autocomplete="off" disabled></el-input>
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <el-form-item label="电话" prop="mobile">
+          <el-input v-model.trim="editForm.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editFormVisiable = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm('editForm')">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 角色分配的弹窗 -->
+    <el-dialog title="角色分配" :visible.sync="ruleFormVisiable" status-icon>
+      <el-form
+        :model="ruleForm"
+        label-width="80px"
+        class="my-form"
+        :rules="rules"
+        status-icon
+        ref="ruleForm"
+      >
+        <el-form-item label="当前用户" prop="username">{{ruleForm.username}}</el-form-item>
+        <el-form-item label="请选择" >
+          <el-select v-model="ruleForm.role_name" placeholder="请选择">
+            <el-option
+              v-for="item in roleList"
+              :key="item.value"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="ruleFormVisiable = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -146,18 +209,40 @@ export default {
       //提交的数据
       sendData: {
         query: "",
-        pagenum: "1",
-        pagesize: "10"
+        pagenum: 1,
+        pagesize: 2
       },
+      //总条数
+      total: 0,
+
       tableData: [],
+      //添加表单的数据
       addForm: {
         username: "",
         password: "",
         email: "",
         mobile: ""
       },
+      //编辑表单的数据
+      editForm: {
+        username: "",
+        email: "",
+        mobile: ""
+      },
+      //分配角色的数据
+      ruleForm: {
+        username: "",
+        email: "",
+        mobile: ""
+      },
       // 标记新增框是否显示
       addFormVisiable: false,
+      //编辑弹框是否显示
+      editFormVisiable: false,
+      //选择角色弹框是否显示
+      ruleFormVisiable: false,
+      //角色列表
+      roleList:[],
       //新增的表单验证
       rules: {
         username: [
@@ -174,9 +259,15 @@ export default {
     };
   },
   methods: {
-    handleEdit(index, row) {
+    async handleEdit(item) {
       //console.log(index);
       //console.log(row);
+      //弹窗
+      this.editFormVisiable = true;
+      //调用接口
+      let res = await this.$http.get(`users/${item.id}`);
+      //设置给编辑表单的数据
+      this.editForm = res.data.data;
     },
     //查询数据
     async seach() {
@@ -186,7 +277,10 @@ export default {
         // },
         params: this.sendData
       });
+      //数据赋值1
       this.tableData = res.data.data.users;
+      //设置总条数
+      this.total = res.data.data.total;
     },
 
     //表单验证
@@ -195,17 +289,32 @@ export default {
         if (valid) {
           //数据正确
           //提交数据
-          let res = await this.$http.post("users", this.addForm, {
-            // headers: {
-            //   Authorization: window.sessionStorage.getItem("token")
-            // },
-          });
-          if (res.data.dasta.meta.status == "201") {
+          let res;
+          if (formName == "editForm") {
+            res = await this.$http.put(
+              `users/${this.editForm.id}`,
+              this.editForm
+            );
+          } else if (formName == "addForm") {
+            res = await this.$http.post("users", this.addForm, {
+              // headers: {
+              //   Authorization: window.sessionStorage.getItem("token")
+              // },
+            });
+          } else if (formName == "ruleForm") {
+            //角色表单提交
+            res = await this.$http.put(`users/${this.ruleForm.id}/role`, {
+              rid: this.ruleForm.role_name
+            });
+          }
+
+          if (res.data.meta.status == "201" || res.data.meta.status == "200") {
             //重新获取
             this.seach();
             //关闭弹窗
-
             this.addFormVisiable = false;
+            this.editFormVisiable = false;
+            this.ruleFormVisiable =  false;
           }
         } else {
           this.$message.warning("请正确输入");
@@ -240,8 +349,30 @@ export default {
         });
     },
     //状态改变
-    async statusChange(item){
-      let res = await this.$http.put(`users/${item.id}/state/${item.mg_state}`)
+    async statusChange(item) {
+      let res = await this.$http.put(`users/${item.id}/state/${item.mg_state}`);
+    },
+    //选择角色
+    async chooseRule(item) {
+      //弹框
+      this.ruleFormVisiable = true;
+      //保存数据
+      this.ruleForm = item;
+      //获取角色信息
+      let res = await this.$http.get("roles");
+      // console.log(res);
+      this.roleList = res.data.data;
+    },
+
+    //页容量改变
+    sizeChange(size) {
+      this.sendData.pagesize = size;
+
+      this.seach();
+    },
+    currentChange(current) {
+      this.sendData.pagenum = current;
+      this.seach();
     }
   },
 
@@ -252,12 +383,7 @@ export default {
 };
 </script>
 <style>
-.el-breadcrumb.my_breadcrumb {
-  height: 45px;
-  line-height: 45px;
-  background-color: #d3dce6;
-  padding-left: 10px;
-}
+
 .my_search {
   margin-top: 5px;
   margin-bottom: 5px;

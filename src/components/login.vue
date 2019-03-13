@@ -12,7 +12,7 @@
     >
       <h2>用户登录</h2>
       <el-form-item label="用户名" prop="username">
-        <el-input v-model.trim="formData.username"></el-input>
+        <el-input v-model.trim="formData.username" ></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input type="password" v-model.trim="formData.password" autocomplete="off" @keyup.enter.native="submitForm('formData')"></el-input>
@@ -29,8 +29,8 @@ export default {
     return {
       //表单数据
       formData: {
-        username: "",
-        password: ""
+        username: "admin",
+        password: "123456"
       },
       //表单的验证规则
       rules: {
@@ -63,11 +63,11 @@ export default {
         //alert("submit!");
         this.$http.post("login",this.formData).then(res=>{
             if(res.data.meta.status === 400){
-                console.log(res);
+                //console.log(res);
                 // this.$message.error(res.data.meta.msg);
             }else{
                 //登录成功
-                console.log(res);
+                //console.log(res);
                 // this.$message.success(res.data.meta.msg);
                 window.sessionStorage.setItem('token',res.data.data.token)
                 this.$router.push('/')

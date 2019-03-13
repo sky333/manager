@@ -12,6 +12,9 @@ Vue.use(ElementUI);
 import http from './lib/http'
 Vue.use(http)
 
+//全局导入 面包屑组件 并注册
+import mianbaoxie from './components/mianbaoxie.vue'
+Vue.component('mianbaoxie',mianbaoxie)//注册
 
 Vue.config.productionTip = false
 

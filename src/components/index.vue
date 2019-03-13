@@ -19,17 +19,17 @@
     </el-header>
     <el-container>
       <el-aside width="200px" class="index_aside">
-        <el-menu
-          default-active="2"
-          class="el-menu-vertical-demo"
-          router
-        >
-          <el-submenu index="1">
+        <!-- 饿了么导航 -->
+        <el-menu default-active="2" class="el-menu-vertical-demo" router>
+          <el-submenu :index="index+''" v-for="(item,index) in menuList" :key="index">
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{item.authName}}</span>
             </template>
-            <el-menu-item index="users"><span class="el-icon-menu"></span> 用户列表</el-menu-item>
+            <el-menu-item :index="'/'+it.path" v-for="(it,i) in item.children" :key="i">
+              <span class="el-icon-menu"></span>
+              {{it.authName}}
+            </el-menu-item>
           </el-submenu>
         </el-menu>
       </el-aside>
@@ -41,6 +41,12 @@
 </template>
 <script>
 export default {
+  data() {
+    return {
+      menuList: []
+    };
+  },
+
   //判断用户是否登录
   // beforeCreate() {
   //   if (window.sessionStorage.getItem("token")) {
@@ -64,6 +70,12 @@ export default {
         this.$router.push("/login");
       });
     }
+  },
+
+  //生命周期钩子
+  async created() {
+    let res = await this.$http.get("menus");
+    this.menuList = res.data.data;
   }
 };
 </script>
@@ -89,7 +101,6 @@ export default {
   text-align: right;
 }
 .el-main.index_main {
-
   height: 100%;
   height: 100%;
   background-color: #e9eef3;

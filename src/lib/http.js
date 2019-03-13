@@ -32,11 +32,13 @@ axios.interceptors.response.use(function (response) {
   //         flag = true
   //     }
   // })
-  let res = [200, 201, 204]
-  let flag = res.some(v => v === response.data.meta.status)
+  let res = [200, 201, 204]//创建一个数组将服务器返回的数字放入其中
+  let flag = res.some(v => v === response.data.meta.status)//当返回的数字有数组中的任意一个都返回turn
   if (flag) {
+    //当为turn时,用绿色的弹窗
     Vue.prototype.$message.success(response.data.meta.msg)
   } else {
+    //否则用红色的弹窗
     Vue.prototype.$message.warning(response.data.meta.msg)
   }
   return response;
