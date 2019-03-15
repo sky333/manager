@@ -146,7 +146,7 @@
         ref="ruleForm"
       >
         <el-form-item label="当前用户" prop="username">{{ruleForm.username}}</el-form-item>
-        <el-form-item label="请选择" >
+        <el-form-item label="请选择">
           <el-select v-model="ruleForm.role_name" placeholder="请选择">
             <el-option
               v-for="item in roleList"
@@ -210,7 +210,7 @@ export default {
       sendData: {
         query: "",
         pagenum: 1,
-        pagesize: 2
+        pagesize: 10
       },
       //总条数
       total: 0,
@@ -242,7 +242,7 @@ export default {
       //选择角色弹框是否显示
       ruleFormVisiable: false,
       //角色列表
-      roleList:[],
+      roleList: [],
       //新增的表单验证
       rules: {
         username: [
@@ -301,6 +301,7 @@ export default {
               //   Authorization: window.sessionStorage.getItem("token")
               // },
             });
+            this.$refs[formName].resetFields();
           } else if (formName == "ruleForm") {
             //角色表单提交
             res = await this.$http.put(`users/${this.ruleForm.id}/role`, {
@@ -314,7 +315,7 @@ export default {
             //关闭弹窗
             this.addFormVisiable = false;
             this.editFormVisiable = false;
-            this.ruleFormVisiable =  false;
+            this.ruleFormVisiable = false;
           }
         } else {
           this.$message.warning("请正确输入");
@@ -383,7 +384,6 @@ export default {
 };
 </script>
 <style>
-
 .my_search {
   margin-top: 5px;
   margin-bottom: 5px;
